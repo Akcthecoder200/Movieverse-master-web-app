@@ -3,7 +3,7 @@ import { fetchFromTMDB } from "../services/tmdb.service.js";
 export async function getTrendingMovie(req, res) {
   try {
     const data = await fetchFromTMDB(
-      "https://moviesdatabase.p.rapidapi.com/titles/random?list=top_rated_series_250?startYear=2020"
+      "https://moviesdatabase.p.rapidapi.com/titles/random?list=top_rated_series_250&startYear=2020"
     );
     const randomMovie =
       data.results[Math.floor(Math.random() * data.results?.length)];
@@ -60,10 +60,27 @@ export async function getSimilarMovies(req, res) {
 
 export async function getMoviesByCategory(req, res) {
   const { category } = req.params;
+  let url = "";
+
+  switch (category) {
+    case "now_playing":
+      url = `https://moviesdatabase.p.rapidapi.com/titles?limit=25&year=2025`;
+      break;
+    case "top_rated":
+      url = `https://moviesdatabase.p.rapidapi.com/titles?limit=25&list=top_rated_series_250&startYear=2020`;
+      break;
+    case "popular":
+      url = `https://moviesdatabase.p.rapidapi.com/titles?limit=25&list=top_boxoffice_200&sort=year.decr`;
+      break;
+    case "upcoming":
+      url = `https://moviesdatabase.p.rapidapi.com/titles/x/upcoming?limit=25`;
+      break;
+    default:
+      break;
+  }
+
   try {
-    const data = await fetchFromTMDB(
-      `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=1`
-    );
+    const data = await fetchFromTMDB(url);
     res.status(200).json({ success: true, content: data.results });
   } catch (error) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
